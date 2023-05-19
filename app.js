@@ -1,4 +1,6 @@
-const path = require('path');
+const path = require('path'); 
+const dotenv = require('dotenv').config()
+
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -9,8 +11,7 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const errorController = require('./controllers/error');
 const User = require('./models/user');
 
-const MONGODB_URI =
-"mongodb+srv://rRoberto-dDamnplock:SCCNFplh5hbySsUz@mongo-2023-max.zhsimsx.mongodb.net/shop";
+const MONGODB_URI = `${process.env.MONGODB_URI}`;
 
 const app = express();
 const store = new MongoDBStore({
