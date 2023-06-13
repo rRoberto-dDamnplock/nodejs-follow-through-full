@@ -27,11 +27,11 @@ router.post(
           }
           //   return true;
         });
-      }).normalizeEmail(),
-    body(
-      "password",
-      "Invalid password, incorrect password or too short."
-    ).isLength({ min: 5 }).trim(),
+      })
+      .normalizeEmail(),
+    body("password", "Invalid password, incorrect password or too short.")
+      .isLength({ min: 5 })
+      .trim(),
   ],
   authController.postLogin
 );
@@ -54,10 +54,12 @@ router.post(
             );
           }
         });
-      }).normalizeEmail(),
+      })
+      .normalizeEmail(),
     body("password", "Please enter a valid password")
       .isLength({ min: 5 })
-      .isAlphanumeric().trim(),
+      .isAlphanumeric()
+      .trim(),
     body("confirmPassword").custom((value, { req }) => {
       if (value !== req.body.password) {
         throw new Error("Passwords have to match");

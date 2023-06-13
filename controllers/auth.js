@@ -22,9 +22,9 @@ exports.getLogin = (req, res, next) => {
     isAuthenticated: false,
     errorMessage: req.flash("error"),
     oldInput: {
-      email: '', 
-      password: '', 
-    }, 
+      email: "",
+      password: "",
+    },
     validationErrors: [],
   });
 };
@@ -37,9 +37,9 @@ exports.getSignup = (req, res, next) => {
     isAuthenticated: false,
     errorMessage: req.flash("error"),
     oldInput: {
-      email: '',
-      password: '',
-      confirmPassword: '',
+      email: "",
+      password: "",
+      confirmPassword: "",
     },
     validationErrors: [],
   });
@@ -58,12 +58,12 @@ exports.postLogin = (req, res, next) => {
       path: "/signup",
       pageTitle: "Signup",
       isAuthenticated: false,
-      errorMessage:'Invalid email or password',
+      errorMessage: "Invalid email or password",
       oldInput: {
-        email: email, 
+        email: email,
         password: password,
-      }, 
-      validationErrors: [{param: 'email'}]
+      },
+      validationErrors: [{ param: "email" }],
     });
   }
 
@@ -77,40 +77,43 @@ exports.postLogin = (req, res, next) => {
           path: "/signup",
           pageTitle: "Signup",
           isAuthenticated: false,
-          errorMessage:'Invalid email or password',
+          errorMessage: "Invalid email or password",
           oldInput: {
-            email: email, 
+            email: email,
             password: password,
-          }, 
-          validationErrors: [{param: 'email'}]
+          },
+          validationErrors: [{ param: "email" }],
         });
-        console.log('how did we reach HERE!!')
-
+        console.log("how did we reach HERE!!");
       }
 
-  // Compare the provided password with the hashed password stored in the database
-  bcrypt
-    .compare(password, user.password)
-    .then((doMatch) => {
-      if (doMatch) {
-        // Passwords match, set user session and redirect to the homepage
-        req.session.isLoggedIn = true;
-        req.session.user = user;
-        return req.session.save((err) => {
-          console.log(err);
-          res.redirect("/");
-        });
-      }
+      // Compare the provided password with the hashed password stored in the database
+      bcrypt
+        .compare(password, user.password)
+        .then((doMatch) => {
+          if (doMatch) {
+            // Passwords match, set user session and redirect to the homepage
+            req.session.isLoggedIn = true;
+            req.session.user = user;
+            return req.session.save((err) => {
+              console.log(err);
+              res.redirect("/");
+            });
+          }
 
-      // Passwords don't match, redirect to the login page
-      res.redirect("/login");
+          // Passwords don't match, redirect to the login page
+          res.redirect("/login");
+        })
+        .catch((err) => {
+          // Error occurred during password comparison, redirect to the login page
+          res.redirect("/login");
+        });
     })
-    .catch((err) => {
-      // Error occurred during password comparison, redirect to the login page
-      res.redirect("/login");
+    .catch((err) =>{
+      const error = new Error(err); 
+      error.httpStatusCode = 500; 
+      return next(error);
     });
-  })
-  .catch((err) => console.log(err));
 };
 
 // Handle the signup form submission
@@ -132,7 +135,7 @@ exports.postSignup = (req, res, next) => {
         password: password,
         confirmPassword: req.body.confirmPassword,
       },
-      validationErrors: errors.array()
+      validationErrors: errors.array(),
     });
   }
   // Find if the user with the provided email already exists in the database
@@ -166,7 +169,11 @@ exports.postSignup = (req, res, next) => {
         html: "<h1>Successful signup</h1>",
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err) =>{
+      const error = new Error(err); 
+      error.httpStatusCode = 500; 
+      return next(error);
+    });
 };
 
 // Handle the logout
@@ -219,8 +226,10 @@ exports.postReset = (req, res, next) => {
             res.redirect("/");
           });
       })
-      .catch((err) => {
-        console.log(err);
+      .catch((err) =>{
+        const error = new Error(err); 
+        error.httpStatusCode = 500; 
+        return next(error);
       });
   });
 };
@@ -239,8 +248,10 @@ exports.getNewPassword = (req, res, next) => {
         userId: user._id.toString(),
       });
     })
-    .catch((err) => {
-      console.log("Error: ", err);
+    .catch((err) =>{
+      const error = new Error(err); 
+      error.httpStatusCode = 500; 
+      return next(error);
     });
 };
 
@@ -269,5 +280,9 @@ exports.postNewPassword = (req, res, next) => {
     .then((result) => {
       res.redirect("/login");
     })
-    .catch((err) => console.log(err));
+    .catch((err) =>{
+      const error = new Error(err); 
+      error.httpStatusCode = 500; 
+      return next(error);
+    });
 };
