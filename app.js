@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
+const multer = require("multer");
 
 const flash = require("connect-flash");
 
@@ -37,8 +38,33 @@ const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
 
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "images");
+  },
+  filename: (req, file, cb) => {
+    cb(null, new Date().toISOString() + "_" + file.originalname);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimeType === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ){
+    cb(null, true);
+  } else {
+
+    cb(null, false);
+  }
+
+};
+
 // Middleware and session configuration
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single("image"));
+
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
   session({
@@ -80,6 +106,10 @@ app.use((req, res, next) => {
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
+
+// app.use((error, req, res, next) => {
+//   res.status(500).json({ error: error.message, stack: error.stack });
+// });
 
 app.get("/500", errorController.get500);
 // Handle 404 errors
